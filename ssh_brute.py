@@ -2,8 +2,6 @@ from scripts import brute, scan
 from scripts.helpers import get_parser
 from configs.exceptions import ArgumentBadValueError
 from dotenv import dotenv_values
-from termcolor import colored
-import sys
 import os
 
 def phase_1(env, arguments):
@@ -13,10 +11,8 @@ def phase_1(env, arguments):
     
     scan.start(env, arguments)
     
-    if dotenv_values()['ENTER_TO_CONTINUE']:
+    if dotenv_values()['ENTER_TO_CONTINUE'] == 'true':
         input('PRESS ENTER TO CONTINUE...')
-    
-    os.system('clear')
 
 def phase_2(env, arguments):
     os.system('clear')

@@ -2,7 +2,7 @@ class ArgumentBadValueError(Exception):
     """Exception raised for errors in the arguments value input.
 
     Attributes:
-        argument -- arguments name
+        argument_name -- arguments name
     """
 
     def __init__(self, argument_name):

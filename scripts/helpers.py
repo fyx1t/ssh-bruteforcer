@@ -20,7 +20,21 @@ def get_parser(env) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-i", 
-        "--ip_list",
+        "--ip_file",
+        action="store",
+        required=True,
+        help='name of the file with ip addresses or domain names'
+    )
+    parser.add_argument(
+        "-l", 
+        "--logins_file",
+        action="store",
+        required=True,
+        help='name of the file with ip addresses or domain names'
+    )
+    parser.add_argument(
+        "-p", 
+        "--passwords_file",
         action="store",
         required=True,
         help='name of the file with ip addresses or domain names'
@@ -59,7 +73,7 @@ def check_for_good_ips(ips) -> list:
 
 def get_ips(env, arguments) -> list:
     ips = []
-    with open(f'{env["INPUT_FOLDER"]}{arguments.ip_list}', 'r') as ips_file:
+    with open(f'{env["INPUT_FOLDER"]}{arguments.ip_file}', 'r') as ips_file:
         ips = ips_file.read().split('\n')
     
     for i in range(len(ips)):
@@ -68,9 +82,9 @@ def get_ips(env, arguments) -> list:
             
     return ips
 
-def get_good_ips() -> list:
+def get_good_ips(env) -> list:
     pre_ips = []
-    with open('good_ips.txt', 'r') as ips_file:
+    with open(f'{env["OUTPUT_FOLDER"]}{env["FILENAME_GOOD_IPS"]}', 'r') as ips_file:
         pre_ips = ips_file.read().split('\n')
     
     ips = []
@@ -101,30 +115,29 @@ def ping_port(ip) -> bool:
         client.close()
         return True
 
-def prepare(ENV):
+def prepare(ENV, arguments):
     threads = Threads(ENV['THREADS'])
-    print(colored(f'THERE WILL BE {ENV["THREADS"]} THREADS', 'green'))
 
     LOGINS: list = []
     PASSWORDS: list = []
-    with open('logins_to_crack.txt', 'r') as logins_file:
+    with open(f'{ENV["INPUT_FOLDER"]}{arguments.logins_file}', 'r') as logins_file:
         for line in logins_file:
             LOGINS.append(line.replace('\n', ''))
 
-    with open('passwords_to_crack.txt', 'r') as passwords_file:
+    with open(f'{ENV["INPUT_FOLDER"]}{arguments.passwords_file}', 'r') as passwords_file:
         for line in passwords_file:
             PASSWORDS.append(line.replace('\n', ''))
 
-    print(colored('CREDENTIONALS ARE LOADED', 'green'))
+    print(colored('[INFO] CREDENTIONALS ARE LOADED', 'green'))
 
     current_work_ips: list = ['' for i in range(ENV['THREADS'])]
     current_creds: list = ['' for i in range(ENV['THREADS'])]
     worked_ips: list = []
     good_ips: list = []
     
-    os.system('rm -f found.txt; touch found.txt')
-    os.system('rm -f found-extended.txt; touch found-extended.txt')
-    os.system('rm -f errors.txt; touch errors.txt')
+    os.system(f'rm -f {ENV["OUTPUT_FOLDER"]}{ENV["FILENAME_FOUND_IPS"]}; touch {ENV["OUTPUT_FOLDER"]}{ENV["FILENAME_FOUND_IPS"]}')
+    os.system(f'rm -f {ENV["OUTPUT_FOLDER"]}{ENV["FILENAME_FOUND_IPS_EXTENDED"]}; touch {ENV["OUTPUT_FOLDER"]}{ENV["FILENAME_FOUND_IPS_EXTENDED"]}')
+    os.system(f'rm -f {ENV["OUTPUT_FOLDER"]}{ENV["FILENAME_ERRORS"]}; touch {ENV["OUTPUT_FOLDER"]}{ENV["FILENAME_ERRORS"]}')
     
     return LOGINS, PASSWORDS, threads, current_work_ips, current_creds, worked_ips, good_ips
 
@@ -138,7 +151,7 @@ class Threads:
         # 1 argument MAX
         for i in range(self.count):
             self.threads.append(
-                threading.Thread(target=self.jobs[i][0], args=(self.jobs[i][1], self.jobs[i][2]))
+                threading.Thread(target=self.jobs[i][0], args=(self.jobs[i][1], self.jobs[i][2], self.jobs[i][3]))
             )
         for thread in self.threads:
             thread.start()
