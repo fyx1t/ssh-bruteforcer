@@ -2,8 +2,6 @@ ssh bruteforce and scanning tool
 
 usage: ssh_brute [-h] [-v] -i IP_FILE -l LOGINS_FILE -p PASSWORDS_FILE -m MODE
 
-SSH scanning and bruteforce tool
-
 options:
   -h, --help            show this help message and exit
   -v, --version         show the version of this program and exit
