@@ -1,0 +1,15 @@
+# logs
+work.log
+
+# env
+.env
+
+# backups
+*.backup
+
+# txt files
+*.txt
+
+# other
+venv
+__pycache__
