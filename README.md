@@ -31,13 +31,17 @@ all logs by default are collected in **data/** directory, but you can change it 
 
 # examples
 
-## scan and brute
+## all mode
 
 ```python ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt```
 
-## only scan
+## scan mode
 
 ```python ssh_brute.py -i ips.txt -m scan```
+
+## brute mode
+
+```python ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt -m brute```
 
 # usage
 ```
