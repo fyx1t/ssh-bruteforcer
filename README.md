@@ -6,7 +6,7 @@ use this tool to scan a large number of hosts for running ssh services and then 
 
 the logic of the tool's operation consists of two modes:
 1. scan: the tool, using the specified list of ip addresses or domain names of hosts, sends connection requests and, receiving any response from them, gradually adds them to the lists of active hosts, thus allowing to understand which hosts among others are really worth to brute force
-2. brute: the tool, using a list of active hosts, as well as lists with logins and passwords, starts testing hosts in batches, allowing you to monitor this process in real time.
+2. brute: the tool, using a list of active hosts, as well as lists with logins and passwords, starts testing hosts in batches, allowing you to monitor this process in real time
 you can perform them either sequentially or individually
 
 # preparation
