@@ -4,7 +4,7 @@ import os
 
 def start(env, arguments):
     ips = get_ips(env, arguments)
-    good_ips = check_for_good_ips(ips)
+    good_ips = check_for_good_ips(ips, env)
     print('[INFO] SAVING TO FILE...')
     good_ips_filename: dict = env['FILENAME_GOOD_IPS']
     os.system(f'rm -f {good_ips_filename}')

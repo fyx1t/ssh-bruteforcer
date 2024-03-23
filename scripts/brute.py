@@ -32,7 +32,7 @@ def make_connection(ip: str, number: int, env):
                     try:
                         client.connect(
                             hostname=ip,
-                            port=22,
+                            port=int(env['PORT']),
                             username=login,
                             password=password,
                             timeout=5
