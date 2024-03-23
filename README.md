@@ -23,11 +23,11 @@ next, you need to create several files, namely:
 2. a file that will contain logins (**logins.txt**)
 3. a file that will contain passwords (**passwords.txt**)
 
-the directory where these files should be located (by default it is **data/**), as well as their names, you can find out and change in the environment variables file you created in the previous step
+you can find out and change the directory where these files should be located (by default it is **data/**), as well as their names in the environment variables file you created in the previous step
 
 # tool output
 
-all logs by default collect in **data/** directory, but you can change it in **.env** file
+all logs by default are collected in **data/** directory, but you can change it in **.env** file
 
 # examples
 
@@ -37,7 +37,7 @@ all logs by default collect in **data/** directory, but you can change it in **.
 
 ## only scan
 
-```python3 ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt```
+```python ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt```
 
 # usage
 ```
