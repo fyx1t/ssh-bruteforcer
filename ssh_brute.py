@@ -1,6 +1,6 @@
 from scripts import brute, scan
 from scripts.helpers import get_parser
-from configs.exceptions import ArgumentBadValueError
+from configs.exceptions import ArgumentBadValueError, NoKeyError
 from dotenv import dotenv_values
 import os
 
@@ -32,10 +32,16 @@ def main():
         case 'scan':
             phase_1(ENV, arguments)
         case 'brute':
-            phase_2(ENV, arguments)
+            if arguments.logins_file and arguments.passwords_file:
+                phase_2(ENV, arguments)
+            else:
+                raise NoKeyError()
         case 'all':
-            phase_1(ENV, arguments)
-            phase_2(ENV, arguments)
+            if arguments.logins_file and arguments.passwords_file:
+                phase_1(ENV, arguments)
+                phase_2(ENV, arguments)
+            else:
+                raise NoKeyError()
         case _:
             raise ArgumentBadValueError('-m (--mode)')
 
