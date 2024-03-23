@@ -8,7 +8,7 @@ def get_parser(env) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog='ssh_brute', 
         description='SSH scanning and bruteforce tool', 
-        epilog='made by vladislav_fl'
+        epilog='made by fyx1t'
         )
 
     parser.add_argument(
@@ -29,15 +29,15 @@ def get_parser(env) -> argparse.ArgumentParser:
         "-l", 
         "--logins_file",
         action="store",
-        required=True,
-        help='name of the file with ip addresses or domain names'
+        required=False,
+        help='name of the file with logins'
     )
     parser.add_argument(
         "-p", 
         "--passwords_file",
         action="store",
-        required=True,
-        help='name of the file with ip addresses or domain names'
+        required=False,
+        help='name of the file with passwords'
     )
     # scan, brute, all
     parser.add_argument(
@@ -45,7 +45,7 @@ def get_parser(env) -> argparse.ArgumentParser:
         "--mode",
         action="store",
         default='all',
-        required=True,
+        required=False,
         help='script mode (scan, brute, all)'
     )
     
