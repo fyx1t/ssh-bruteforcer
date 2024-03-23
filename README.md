@@ -37,7 +37,7 @@ all logs by default are collected in **data/** directory, but you can change it 
 
 ## only scan
 
-```python ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt```
+```python ssh_brute.py -i ips.txt -m scan```
 
 # usage
 ```
