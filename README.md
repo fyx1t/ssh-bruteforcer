@@ -14,29 +14,33 @@ you can perform them either sequentially or individually
 
 to make the tool work, you need to perform a number of preliminary actions
 
-first, use the "make" utility and execute "make prepare" to install the main libraries and "make create_env" to create a local file with environment variables
+first, use the **make** utility and execute **make prepare"** to install the main libraries and **make create_env** to create a local file with environment variables
 
-if the "make" utility is not available or cannot be installed, you can run the commands specified in "MakeFile" yourself
+if the **make** utility is not available or cannot be installed, you can run the commands specified in **MakeFile** yourself
 
 next, you need to create several files, namely:
-1. a file that will contain ip addresses or domain names of hosts
-2. a file that will contain logins
-3. a file that will contain passwords
+1. a file that will contain ip addresses or domain names of hosts (**ips.txt**)
+2. a file that will contain logins (**logins.txt**)
+3. a file that will contain passwords (**passwords.txt**)
 
-the directory where these files should be located (by default it is data/), as well as their names, you can find out and change in the environment variables file you created in the previous step
+the directory where these files should be located (by default it is **data/**), as well as their names, you can find out and change in the environment variables file you created in the previous step
+
+# tool output
+
+all logs by default collect in **data/** directory, but you can change it in **.env** file
 
 # examples
 
 ## scan and brute
 
-python ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt
+```python ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt```
 
 ## only scan
 
-python3 ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt
+```python3 ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt```
 
 # usage
-
+```
 usage: ssh_brute [-h] [-v] -i IP_FILE [-l LOGINS_FILE] [-p PASSWORDS_FILE] [-m MODE]
 
 SSH scanning and bruteforce tool
@@ -53,3 +57,4 @@ options:
   -m MODE, --mode MODE  script mode (scan, brute, all)
 
 made by fyx1t
+```
