@@ -46,25 +46,25 @@ def get_parser(env) -> argparse.ArgumentParser:
         action="store",
         default='all',
         required=True,
-        help='script phase (scan, brute, all)'
+        help='script mode (scan, brute, all)'
     )
     
     return parser
 
-def check_for_good_ips(ips) -> list:
+def check_for_good_ips(ips, env) -> list:
     good_ips = []
     for ip in ips:
         if type(ip) == list:
             for one_ip in ip:
                 print(f'[INFO] TRYING {one_ip}')
-                if ping_port(one_ip):
+                if ping_port(one_ip, env):
                     good_ips.append(one_ip)
                     print(colored(f'[INFO] FOUND!', 'green'))
                 else:
                     print(colored('[INFO] NO ANSWER...', 'red'))
         else:
             print(f'[INFO] TRYING {ip}')
-            if ping_port(ip):
+            if ping_port(ip, env):
                 good_ips.append(ip)
                 print(colored(f'[INFO] FOUND!', 'green'))
             else:
@@ -94,15 +94,15 @@ def get_good_ips(env) -> list:
     
     return ips
 
-def ping_port(ip) -> bool:
+def ping_port(ip, env) -> bool:
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
         client.connect(
             hostname=ip,
-            port=22,
-            username='astra',
-            password='astra',
+            port=int(env['PORT']),
+            username='root',
+            password='root',
             timeout=5
         )
     except paramiko.ssh_exception.NoValidConnectionsError:
