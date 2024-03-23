@@ -25,9 +25,21 @@ next, you need to create several files, namely:
 
 the directory where these files should be located (by default it is data/), as well as their names, you can find out and change in the environment variables file you created in the previous step
 
+# examples
+
+## scan and brute
+
+python ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt
+
+## only scan
+
+python3 ssh_brute.py -i ips.txt -l logins.txt -p passwords.txt
+
 # usage
 
-usage: ssh_brute [-h] [-v] -i IP_FILE -l LOGINS_FILE -p PASSWORDS_FILE -m MODE
+usage: ssh_brute [-h] [-v] -i IP_FILE [-l LOGINS_FILE] [-p PASSWORDS_FILE] [-m MODE]
+
+SSH scanning and bruteforce tool
 
 options:
   -h, --help            show this help message and exit
@@ -35,7 +47,9 @@ options:
   -i IP_FILE, --ip_file IP_FILE
                         name of the file with ip addresses or domain names
   -l LOGINS_FILE, --logins_file LOGINS_FILE
-                        name of the file with ip addresses or domain names
+                        name of the file with logins
   -p PASSWORDS_FILE, --passwords_file PASSWORDS_FILE
-                        name of the file with ip addresses or domain names
+                        name of the file with passwords
   -m MODE, --mode MODE  script mode (scan, brute, all)
+
+made by fyx1t
