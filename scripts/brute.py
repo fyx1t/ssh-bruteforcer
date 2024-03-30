@@ -46,11 +46,17 @@ def make_connection(ip: str, number: int, env):
                         
                         if ENV['ALLOW_COMMANDS'] == 'true':
                             commands = ENV['COMMANDS'].split(',')
+                            
+                            with open(f'{env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS_EXTENDED"]}', 'a') as founde:
+                                founde.write(f'[IP ADDRESS] {ip}\n\n')
+                            
                             for command in commands:
                                 stdin, stdout, stderr = execute(client, command)
                                 with open(f'{env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS_EXTENDED"]}', 'a') as founde:
-                                    founde.write(f'{stdout.read().decode()}{ip}\n')
-                        
+                                    founde.write(f'[{str(command).upper()}] {stdout.read().decode()}\n')
+                                    
+                            with open(f'{env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS_EXTENDED"]}', 'a') as founde:
+                                founde.write('-----\n')
                         good_ips.append(ip)
                         state = False
                         break
