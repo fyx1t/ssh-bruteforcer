@@ -7,9 +7,10 @@ work.log
 # backups
 *.backup
 
-# txt files
-*.txt
+# data files
+data/
 
 # other
 venv
 __pycache__
+TODO.md
