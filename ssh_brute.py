@@ -28,22 +28,21 @@ def main():
     parser = get_parser(ENV)
     arguments = parser.parse_args()
     
-    match arguments.mode:
-        case 'scan':
+    if arguments.mode == 'scan':
+        phase_1(ENV, arguments)
+    elif arguments.mode == 'brute':
+        if arguments.logins_file and arguments.passwords_file:
+            phase_2(ENV, arguments)
+        else:
+            raise NoKeyError()
+    if arguments.mode == 'all':
+        if arguments.logins_file and arguments.passwords_file:
             phase_1(ENV, arguments)
-        case 'brute':
-            if arguments.logins_file and arguments.passwords_file:
-                phase_2(ENV, arguments)
-            else:
-                raise NoKeyError()
-        case 'all':
-            if arguments.logins_file and arguments.passwords_file:
-                phase_1(ENV, arguments)
-                phase_2(ENV, arguments)
-            else:
-                raise NoKeyError()
-        case _:
-            raise ArgumentBadValueError('-m (--mode)')
+            phase_2(ENV, arguments)
+        else:
+            raise NoKeyError()
+    else:
+        raise ArgumentBadValueError('-m (--mode)')
 
 if __name__ == '__main__':
     main()
