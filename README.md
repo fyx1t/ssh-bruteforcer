@@ -14,7 +14,7 @@ you can perform them either sequentially or individually
 
 to make the tool work, you need to perform a number of preliminary actions
 
-first, use the **make** utility and execute **make prepare"** to install the main libraries and **make create_env** to create a local file with environment variables
+first, use the **make** utility and execute **make prepare** to install the main libraries and **make create_env** to create a local file with environment variables
 
 if the **make** utility is not available or cannot be installed, you can run the commands specified in **MakeFile** yourself
 
