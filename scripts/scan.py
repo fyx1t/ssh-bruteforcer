@@ -1,18 +1,26 @@
-from scripts.helpers import get_ips, check_for_good_ips
-from termcolor import colored
+from scripts.helpers import get_ips, check_for_good_ips, check_for_good_ips, Threads
 import os
 
 def start(env, arguments):
+    threads = Threads(env['THREADS'])
     ips = get_ips(env, arguments)
-    good_ips = check_for_good_ips(ips, env)
-    print('[INFO] SAVING TO FILE...')
-    good_ips_filename: dict = env['FILENAME_GOOD_IPS']
-    os.system(f'rm -f {good_ips_filename}')
-    with open(f'{env["OUTPUT_FOLDER"]}{good_ips_filename}', 'w') as good_ips_file:
-        for ip in good_ips:
-            good_ips_file.write(ip + '\n')
+
+    jobs_resources = [[] for i in range(env["THREADS"])]
+
+    job_resource_id = 0
+    for ip in ips:
+        if job_resource_id == len(jobs_resources):
+            job_resource_id = 0
+        jobs_resources[job_resource_id].append(ip)
+        job_resource_id += 1
+
+    for i in range(env['THREADS']):
+        threads.jobs.append([check_for_good_ips, jobs_resources[i], env])
+
+    os.system(f'rm -f {env["OUTPUT_FOLDER"]}{env["FILENAME_GOOD_IPS"]}')
+    threads.run()
+    del threads
     print('[INFO] SCAN FINISHED')
 
-
 if __name__ == '__main__':
-    print(colored('[WARNING] PLEASE LAUNCH ssh_brute.py', 'red'))
+    print('[WARNING] PLEASE LAUNCH ssh_brute.py')
