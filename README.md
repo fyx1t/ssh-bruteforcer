@@ -23,11 +23,9 @@ next, you need to create several files, namely:
 2. a file that will contain logins (**logins.txt**)
 3. a file that will contain passwords (**passwords.txt**)
 
-you can find out and change the directory where these files should be located (by default it is **data/**), as well as their names in the environment variables file you created in the previous step
-
 # tool output
 
-all logs by default are collected in **data/** directory, but you can change it in **.env** file
+all logs by default are collected in **results/** directory, but you can change it in **.env** file
 
 # examples
 
