@@ -8,9 +8,10 @@ work.log
 *.backup
 
 # data files
-data/
+results/
 
 # other
 venv
 __pycache__
 TODO.md
+.DS_Store
