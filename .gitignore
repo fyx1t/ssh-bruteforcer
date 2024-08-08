@@ -15,3 +15,6 @@ venv
 __pycache__
 TODO.md
 .DS_Store
+ips.txt
+logins.txt
+passwords.txt
