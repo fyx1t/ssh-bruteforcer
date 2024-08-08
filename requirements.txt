@@ -1,3 +1,2 @@
-termcolor
 paramiko
 python-dotenv
